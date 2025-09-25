@@ -1,9 +1,10 @@
 import { useState } from 'react'
-import { Home, Calendar, Building, Users, Settings } from 'lucide-react'
+import { Home, Calendar, Building, Users, Settings, Trash2 } from 'lucide-react'
 import Dashboard from './components/Dashboard/Dashboard'
 import TimelineCalendar from './components/Calendar/TimelineCalendar'
 import ApartmentHistory from './components/Apartments/ApartmentHistory'
 import EinstellungenPage from './components/Settings/EinstellungenPage'
+import PapierkorbPage from './components/Papierkorb/PapierkorbPage'
 
 function App() {
   const [activeTab, setActiveTab] = useState('dashboard')
@@ -14,6 +15,7 @@ function App() {
     { id: 'wohnungen', label: 'Wohnungen', icon: Building },
     { id: 'mieter', label: 'Mieter', icon: Users },
     { id: 'einstellungen', label: 'Einstellungen', icon: Settings },
+    { id: 'papierkorb', label: 'Papierkorb', icon: Trash2 },
   ]
 
   return (
@@ -63,6 +65,8 @@ function App() {
           )}
 
           {activeTab === 'einstellungen' && <EinstellungenPage />}
+
+          {activeTab === 'papierkorb' && <PapierkorbPage />}
         </main>
       </div>
     </div>
