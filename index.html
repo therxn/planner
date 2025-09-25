@@ -9,5 +9,14 @@
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
+    <script>
+      // Restore SPA path after 404 redirect
+      const redirect = sessionStorage.redirect
+      if (redirect) {
+        delete sessionStorage.redirect
+        const url = new URL(redirect, location)
+        history.replaceState(null, '', url)
+      }
+    </script>
   </body>
 </html>
