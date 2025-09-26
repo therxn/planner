@@ -1,3 +1,5 @@
+/* Flip-Card Styles scoped for BookingList */
+/* Flip styles removed (no longer used) - keeping file for potential future use */
 /* 3D Flip Card Styles */
 .flip-card {
   perspective: 1000px;
@@ -46,7 +48,6 @@
 .flip-card-back {
   transform: rotateY(180deg);
 }
-
 /* Optimierte Hover-Effekte für 3D-Karten */
 .flip-card-front:hover {
   /* Verhindert Unschärfe bei Hover */
@@ -59,3 +60,4 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+

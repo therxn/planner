@@ -14,6 +14,7 @@ const BookingList = ({
 }) => {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingBooking, setEditingBooking] = useState(null);
+  const [preSelectedDates, setPreSelectedDates] = useState(null);
   const { showTooltip, TooltipComponent } = useDeleteTooltip();
 
   // Buchungen nach Datum sortieren
@@ -63,10 +64,12 @@ const BookingList = ({
   const handleFormClose = () => {
     setIsFormOpen(false);
     setEditingBooking(null);
+    setPreSelectedDates(null);
   };
 
   // Formular submit
   const handleFormSubmit = (bookingData) => {
+    console.log('BookingForm submit:', bookingData);
     if (editingBooking) {
       onUpdateBooking(editingBooking.id, bookingData);
     } else {
@@ -209,7 +212,15 @@ const BookingList = ({
           Buchungsübersicht
         </h3>
         <button
-          onClick={() => setIsFormOpen(true)}
+          onClick={() => {
+            // Start-/Enddatum vorbefüllen: heute und morgen
+            const today = new Date();
+            const tomorrow = new Date(today);
+            tomorrow.setDate(today.getDate() + 1);
+            const fmt = (d) => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+            setPreSelectedDates({ startDate: fmt(today), endDate: fmt(tomorrow) });
+            setIsFormOpen(true);
+          }}
           className="flex items-center px-2 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors text-sm"
         >
           <Plus className="h-3 w-3 mr-1" />
@@ -217,56 +228,64 @@ const BookingList = ({
         </button>
       </div>
 
-      {/* 1) Aktuelle Buchung */}
-      <div>
-        <SectionHeader title="Aktuelle Buchung" disable={true} />
-        <BookingCardMini 
-          booking={currentBooking} 
-          label="Aktuell" 
-          highlight={true}
-          onEdit={currentBooking ? () => handleEditBooking(currentBooking) : undefined}
-          onDelete={currentBooking ? () => onDeleteBooking(currentBooking.id) : undefined}
-        />
-      </div>
+      {/* Inhalt: Entweder Übersicht oder Formular */}
+      <div className="p-4">
+        {isFormOpen ? (
+          <BookingForm
+            apartment={apartment}
+            isOpen={isFormOpen}
+            onClose={handleFormClose}
+            onSubmit={handleFormSubmit}
+            editingBooking={editingBooking}
+            embedded={true}
+            preSelectedDates={preSelectedDates}
+          />
+        ) : (
+          <div className="space-y-4">
+            {/* 1) Aktuelle Buchung */}
+            <div>
+              <SectionHeader title="Aktuelle Buchung" disable={true} />
+              <BookingCardMini 
+                booking={currentBooking} 
+                label="Aktuell" 
+                highlight={true}
+                onEdit={currentBooking ? () => handleEditBooking(currentBooking) : undefined}
+                onDelete={currentBooking ? () => onDeleteBooking(currentBooking.id) : undefined}
+              />
+            </div>
 
-      {/* 2) Nächste Buchung mit Navigation */}
-      <div>
-        <SectionHeader
-          title="Nächste Buchung"
-          count={upcomingCountLabel}
-          disable={upcomingBookings.length <= 1}
-          onPrev={() => stepUpcoming(-1)}
-          onNext={() => stepUpcoming(1)}
-        />
-        <BookingCardMini 
-          booking={upcomingBookings[upcomingIndex]} 
-          label="Nächste" 
-          highlight={true}
-          onEdit={upcomingBookings[upcomingIndex] ? () => handleEditBooking(upcomingBookings[upcomingIndex]) : undefined}
-          onDelete={upcomingBookings[upcomingIndex] ? () => onDeleteBooking(upcomingBookings[upcomingIndex].id) : undefined}
-        />
-      </div>
+            {/* 2) Nächste Buchung mit Navigation */}
+            <div>
+              <SectionHeader
+                title="Nächste Buchung"
+                count={upcomingCountLabel}
+                disable={upcomingBookings.length <= 1}
+                onPrev={() => stepUpcoming(-1)}
+                onNext={() => stepUpcoming(1)}
+              />
+              <BookingCardMini 
+                booking={upcomingBookings[upcomingIndex]} 
+                label="Nächste" 
+                highlight={true}
+                onEdit={upcomingBookings[upcomingIndex] ? () => handleEditBooking(upcomingBookings[upcomingIndex]) : undefined}
+                onDelete={upcomingBookings[upcomingIndex] ? () => onDeleteBooking(upcomingBookings[upcomingIndex].id) : undefined}
+              />
+            </div>
 
-      {/* 3) Vergangene Buchungen (jüngste zuerst) */}
-      <div>
-        <SectionHeader
-          title="Vergangene Buchungen"
-          count={pastCountLabel}
-          disable={pastBookings.length <= 1}
-          onPrev={() => stepPast(-1)}
-          onNext={() => stepPast(1)}
-        />
-        <BookingCardMini booking={pastBookings[pastIndex]} label="Zuletzt beendet" />
+            {/* 3) Vergangene Buchungen (jüngste zuerst) */}
+            <div>
+              <SectionHeader
+                title="Vergangene Buchungen"
+                count={pastCountLabel}
+                disable={pastBookings.length <= 1}
+                onPrev={() => stepPast(-1)}
+                onNext={() => stepPast(1)}
+              />
+              <BookingCardMini booking={pastBookings[pastIndex]} label="Zuletzt beendet" />
+            </div>
+          </div>
+        )}
       </div>
-
-      {/* Buchungsformular */}
-      <BookingForm
-        apartment={apartment}
-        isOpen={isFormOpen}
-        onClose={handleFormClose}
-        onSubmit={handleFormSubmit}
-        editingBooking={editingBooking}
-      />
       <TooltipComponent />
     </div>
   );

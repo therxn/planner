@@ -16,7 +16,9 @@ import {
   Mail,
   Star,
   AlertTriangle,
-  Check
+  Check,
+  ChevronDown,
+  ChevronUp
 } from 'lucide-react';
 import Modal from '../UI/Modal';
 import Badge from '../UI/Badge';
@@ -52,6 +54,7 @@ const ApartmentDetail = ({
 }) => {
   const [showSaved, setShowSaved] = useState(false);
   const [showSavedMaintenance, setShowSavedMaintenance] = useState(false);
+  const [isMainInfoCollapsed, setIsMainInfoCollapsed] = useState(true);
   const { bookings: allBookings, getApartmentCurrentStatus } = useApartments();
   
   if (!apartment) return null;
@@ -98,126 +101,143 @@ const ApartmentDetail = ({
           </div>
         </div>
 
-        {/* Beschreibung */}
+        {/* Beschreibung mit Hauptinformationen */}
         <div className="bg-gray-50 rounded-lg p-3">
-          <p className="text-gray-700 text-sm">{apartment.description}</p>
-        </div>
-
-        {/* Hauptinformationen */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {/* Grunddaten */}
-          <div className="space-y-3">
-            <h3 className="text-base font-semibold text-gray-900">Grunddaten</h3>
-            <div className="space-y-2">
-              <div className="flex items-center">
-                <Bed className="h-4 w-4 text-gray-400 mr-2" />
-                <div>
-                  <div className="text-xs text-gray-500">Betten</div>
-                  <div className="font-medium text-sm">{apartment.beds} Bett{apartment.beds > 1 ? 'en' : ''}</div>
-                </div>
-              </div>
-              <div className="flex items-center">
-                <Euro className="h-4 w-4 text-gray-400 mr-2" />
-                <div>
-                  <div className="text-xs text-gray-500">Preis pro Tag</div>
-                  <div className="font-medium text-sm">€{apartment.price}</div>
-                </div>
-              </div>
-              <div className="flex items-center">
-                <Calendar className="h-4 w-4 text-gray-400 mr-2" />
-                <div>
-                  <div className="text-xs text-gray-500">Status</div>
-                  <Badge status={currentStatus} size="sm" />
-                </div>
-              </div>
-            </div>
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-gray-700 text-sm">{apartment.description}</p>
+            <button
+              onClick={() => setIsMainInfoCollapsed(!isMainInfoCollapsed)}
+              className="p-1 hover:bg-gray-200 rounded transition-colors"
+              title={isMainInfoCollapsed ? "Aufklappen" : "Einklappen"}
+            >
+              {isMainInfoCollapsed ? (
+                <ChevronDown className="h-4 w-4 text-gray-500" />
+              ) : (
+                <ChevronUp className="h-4 w-4 text-gray-500" />
+              )}
+            </button>
           </div>
-
-          {/* Ausstattung */}
-          <div className="space-y-3">
-            <h3 className="text-base font-semibold text-gray-900">Ausstattung</h3>
-            {apartment.amenities && apartment.amenities.length > 0 ? (
-              <div className="space-y-1">
-                {apartment.amenities.map((amenity, index) => {
-                  const IconComponent = getAmenityIcon(amenity);
-                  return (
-                    <div key={index} className="flex items-center">
-                      <IconComponent className="h-4 w-4 text-gray-400 mr-2" />
-                      <span className="text-gray-700 text-sm">{amenity}</span>
+          
+          {!isMainInfoCollapsed && (
+            <div className="border-t border-gray-200 pt-3">
+              <h3 className="text-sm font-semibold text-gray-800 mb-3">Hauptinformationen</h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {/* Grunddaten */}
+                <div className="space-y-3">
+                  <h4 className="text-sm font-semibold text-gray-800">Grunddaten</h4>
+                  <div className="space-y-2">
+                    <div className="flex items-center">
+                      <Bed className="h-4 w-4 text-gray-400 mr-2" />
+                      <div>
+                        <div className="text-xs text-gray-500">Betten</div>
+                        <div className="font-medium text-sm">{apartment.beds} Bett{apartment.beds > 1 ? 'en' : ''}</div>
+                      </div>
                     </div>
-                  );
-                })}
-              </div>
-            ) : (
-              <p className="text-gray-500 text-xs">Keine besonderen Ausstattungsmerkmale</p>
-            )}
-          </div>
-
-          {/* Wartung & Reinigung */}
-          <div className="space-y-3">
-            <h3 className="text-base font-semibold text-gray-900">Wartung & Reinigung</h3>
-            <div className="space-y-2">
-              <div className="flex items-start">
-                <Clock className="h-4 w-4 text-gray-400 mr-2 mt-0.5" />
-                <div>
-                  <div className="text-xs text-gray-500">Letzte Reinigung</div>
-                  <div className="mt-0.5 flex items-center space-x-2">
-                    <input
-                      type="date"
-                      defaultValue={apartment.lastCleaned}
-                      className="border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
-                      onChange={async (e) => {
-                        const newDate = e.target.value;
-                        if (onUpdateApartment && newDate) {
-                          try {
-                            await onUpdateApartment(apartment.id, { lastCleaned: newDate });
-                            setShowSaved(true);
-                            setTimeout(() => setShowSaved(false), 3000);
-                          } catch (err) {
-                            console.error(err);
-                          }
-                        }
-                      }}
-                    />
-                    {showSaved && (
-                      <Check className="h-4 w-4 text-green-600" />
-                    )}
-                  </div>
-                  <div className="text-xs text-gray-600 mt-1">
-                    Reinigung vor {daysSinceCleaning} Tag{daysSinceCleaning !== 1 ? 'en' : ''}
+                    <div className="flex items-center">
+                      <Euro className="h-4 w-4 text-gray-400 mr-2" />
+                      <div>
+                        <div className="text-xs text-gray-500">Preis pro Tag</div>
+                        <div className="font-medium text-sm">€{apartment.price}</div>
+                      </div>
+                    </div>
+                    <div className="flex items-center">
+                      <Calendar className="h-4 w-4 text-gray-400 mr-2" />
+                      <div>
+                        <div className="text-xs text-gray-500">Status</div>
+                        <Badge status={currentStatus} size="sm" />
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
-              <div className="flex items-start">
-                <Calendar className="h-4 w-4 text-gray-400 mr-2 mt-0.5" />
-                <div>
-                  <div className="text-xs text-gray-500">Nächste Reinigung</div>
-                  <div className="mt-0.5 flex items-center space-x-2">
-                    <input
-                      type="date"
-                      defaultValue={apartment.nextCleaning}
-                      className="border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
-                      onChange={async (e) => {
-                        const newDate = e.target.value;
-                        if (onUpdateApartment && newDate) {
-                          try {
-                            await onUpdateApartment(apartment.id, { nextCleaning: newDate });
-                            setShowSavedMaintenance(true);
-                            setTimeout(() => setShowSavedMaintenance(false), 3000);
-                          } catch (err) {
-                            console.error(err);
-                          }
-                        }
-                      }}
-                    />
-                    {showSavedMaintenance && (
-                      <Check className="h-4 w-4 text-green-600" />
-                    )}
+
+                {/* Ausstattung */}
+                <div className="space-y-3">
+                  <h4 className="text-sm font-semibold text-gray-800">Ausstattung</h4>
+                  {apartment.amenities && apartment.amenities.length > 0 ? (
+                    <div className="space-y-1">
+                      {apartment.amenities.map((amenity, index) => {
+                        const IconComponent = getAmenityIcon(amenity);
+                        return (
+                          <div key={index} className="flex items-center">
+                            <IconComponent className="h-4 w-4 text-gray-400 mr-2" />
+                            <span className="text-gray-700 text-sm">{amenity}</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <p className="text-gray-500 text-xs">Keine besonderen Ausstattungsmerkmale</p>
+                  )}
+                </div>
+
+                {/* Wartung & Reinigung */}
+                <div className="space-y-3">
+                  <h4 className="text-sm font-semibold text-gray-800">Wartung & Reinigung</h4>
+                  <div className="space-y-2">
+                    <div className="flex items-start">
+                      <Clock className="h-4 w-4 text-gray-400 mr-2 mt-0.5" />
+                      <div>
+                        <div className="text-xs text-gray-500">Letzte Reinigung</div>
+                        <div className="mt-0.5 flex items-center space-x-2">
+                          <input
+                            type="date"
+                            defaultValue={apartment.lastCleaned}
+                            className="border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                            onChange={async (e) => {
+                              const newDate = e.target.value;
+                              if (onUpdateApartment && newDate) {
+                                try {
+                                  await onUpdateApartment(apartment.id, { lastCleaned: newDate });
+                                  setShowSaved(true);
+                                  setTimeout(() => setShowSaved(false), 3000);
+                                } catch (err) {
+                                  console.error(err);
+                                }
+                              }
+                            }}
+                          />
+                          {showSaved && (
+                            <Check className="h-4 w-4 text-green-600" />
+                          )}
+                        </div>
+                        <div className="text-xs text-gray-600 mt-1">
+                          Reinigung vor {daysSinceCleaning} Tag{daysSinceCleaning !== 1 ? 'en' : ''}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex items-start">
+                      <Calendar className="h-4 w-4 text-gray-400 mr-2 mt-0.5" />
+                      <div>
+                        <div className="text-xs text-gray-500">Nächste Reinigung</div>
+                        <div className="mt-0.5 flex items-center space-x-2">
+                          <input
+                            type="date"
+                            defaultValue={apartment.nextCleaning}
+                            className="border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                            onChange={async (e) => {
+                              const newDate = e.target.value;
+                              if (onUpdateApartment && newDate) {
+                                try {
+                                  await onUpdateApartment(apartment.id, { nextCleaning: newDate });
+                                  setShowSavedMaintenance(true);
+                                  setTimeout(() => setShowSavedMaintenance(false), 3000);
+                                } catch (err) {
+                                  console.error(err);
+                                }
+                              }
+                            }}
+                          />
+                          {showSavedMaintenance && (
+                            <Check className="h-4 w-4 text-green-600" />
+                          )}
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
+          )}
         </div>
         {/* Reinigungsfortschritt entfernt */}
 
