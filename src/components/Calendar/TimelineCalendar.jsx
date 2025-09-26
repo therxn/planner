@@ -4,6 +4,7 @@ import { useSupabaseApartments as useApartments } from '../../hooks/useSupabaseA
 import { bookingUtils } from '../../data/bookingData';
 import CalendarLegend from './CalendarLegend';
 import ApartmentDetailResponsive from '../Dashboard/ApartmentDetailResponsive';
+import { formatDateToISO } from '../../utils/dateUtils';
 
 // Timeline-Kalender für alle Wohnungen
 const TimelineCalendar = () => {
@@ -212,8 +213,10 @@ const TimelineCalendar = () => {
 
   // Bestimme Status für eine Wohnung an einem bestimmten Tag basierend auf echten Buchungen
   const getApartmentStatus = (apartment, date) => {
+    // Verwende lokales Datum ohne Zeitzone-Probleme
+    const dateStr = formatDateToISO(date);
+    
     // Prüfe alle Buchungen (nicht nur aktive) für dieses Datum
-    const dateStr = date.toISOString().split('T')[0];
     const apartmentBookings = bookings.filter(booking => 
       booking.apartmentId === apartment.id &&
       dateStr >= booking.startDate && 
@@ -241,7 +244,9 @@ const TimelineCalendar = () => {
 
   // Hole Buchungsdetails für einen Tag
   const getBookingForDate = (apartment, date) => {
-    const dateStr = date.toISOString().split('T')[0];
+    // Verwende lokales Datum ohne Zeitzone-Probleme
+    const dateStr = formatDateToISO(date);
+    
     return bookings.find(booking => 
       booking.apartmentId === apartment.id &&
       dateStr >= booking.startDate && 

@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect, useCallback } from 'react';
 import { supabaseHelpers } from '../lib/supabase.js';
 import { bookingUtils } from '../data/bookingData.js';
+import { formatDateToISO } from '../utils/dateUtils';
 
 // Custom Hook für Apartment-Management mit Supabase
 export const useSupabaseApartments = () => {
@@ -321,12 +322,13 @@ export const useSupabaseApartments = () => {
   };
 
   const getApartmentCurrentStatus = (apartment) => {
-    const today = new Date().toISOString().split('T')[0];
+    // Verwende lokales Datum ohne Zeitzone-Probleme
+    const todayStr = formatDateToISO(new Date());
     
     const todayBookings = bookings.filter(booking => 
       booking.apartmentId === apartment.id &&
-      today >= booking.startDate && 
-      today <= booking.endDate
+      todayStr >= booking.startDate && 
+      todayStr <= booking.endDate
     );
     
     if (todayBookings.length > 0) {

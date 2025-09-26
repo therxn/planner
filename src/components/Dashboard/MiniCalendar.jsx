@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import CalendarLegend from './CalendarLegend';
 import { useSupabaseApartments as useApartments } from '../../hooks/useSupabaseApartments';
+import { formatDateToISO } from '../../utils/dateUtils';
 
 // Mini-Kalender Komponente für Wohnungskarten
 // Optional: vorgefilterte Buchungen übergeben, um externe Aktualisierungen zu spiegeln
@@ -15,7 +16,8 @@ const MiniCalendar = ({ apartment, size = 'small', onDateRangeSelect = null, boo
   
   // Bestimme Belegungsstatus für einen Tag basierend auf echten Buchungen
   const getDayStatus = (date) => {
-    const dateStr = date.toISOString().split('T')[0];
+    // Verwende lokales Datum ohne Zeitzone-Probleme
+    const dateStr = formatDateToISO(date);
     
     // Prüfe alle Buchungen für diese Wohnung an diesem Datum
     const apartmentBookings = bookings.filter(booking => 
