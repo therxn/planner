@@ -4,7 +4,6 @@ import { useSupabaseApartments as useApartments } from '../../hooks/useSupabaseA
 import { DEFAULT_GRID_CLASS, DEFAULT_VALUES } from '../../utils/constants';
 import ApartmentCard from './ApartmentCard';
 import ApartmentCardCompact from './ApartmentCardCompact';
-import ApartmentCardEnhanced from './ApartmentCardEnhanced';
 import ApartmentDetailResponsive from './ApartmentDetailResponsive';
 import ApartmentForm from './ApartmentForm';
 import SearchFilter from './SearchFilter';
@@ -108,8 +107,6 @@ const Dashboard = () => {
     switch (viewMode) {
       case 'compact':
         return <ApartmentCardCompact key={apartment.id} {...commonProps} />;
-      case 'enhanced':
-        return <ApartmentCardEnhanced key={apartment.id} {...commonProps} />;
       default:
         return <ApartmentCard key={apartment.id} {...commonProps} />;
     }
@@ -119,9 +116,7 @@ const Dashboard = () => {
   const getGridClasses = () => {
     switch (viewMode) {
       case 'compact':
-        return 'space-y-4';
-      case 'enhanced':
-        return `grid gap-8 ${DEFAULT_GRID_CLASS.replace('grid-cols-1', 'grid-cols-1').replace('md:grid-cols-2', 'md:grid-cols-2').replace('lg:grid-cols-3', 'lg:grid-cols-2').replace('xl:grid-cols-4', 'xl:grid-cols-3')}`;
+        return 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4';
       default:
         return DEFAULT_GRID_CLASS;
     }

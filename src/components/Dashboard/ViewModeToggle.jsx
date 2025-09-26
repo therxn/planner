@@ -1,11 +1,10 @@
-import { Grid3X3, List, LayoutGrid } from 'lucide-react';
+import { Grid3X3, List } from 'lucide-react';
 
 // Ansichtsmodus-Toggle-Komponente
 const ViewModeToggle = ({ currentMode, onModeChange }) => {
   const modes = [
     { id: 'grid', label: 'Grid', icon: Grid3X3 },
-    { id: 'compact', label: 'Kompakt', icon: List },
-    { id: 'enhanced', label: 'Erweitert', icon: LayoutGrid }
+    { id: 'compact', label: 'Kompakt', icon: List }
   ];
 
   return (
