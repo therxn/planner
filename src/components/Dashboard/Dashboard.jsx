@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Home, Plus, RotateCcw } from 'lucide-react';
 import { useSupabaseApartments as useApartments } from '../../hooks/useSupabaseApartments';
 import { DEFAULT_GRID_CLASS, DEFAULT_VALUES } from '../../utils/constants';
 import ApartmentCard from './ApartmentCard';
@@ -185,49 +186,55 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="space-y-4">
-      {/* Header mit Statistiken */}
-      <div className="bg-white rounded-lg shadow p-4">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4">
-          <div>
-            <h1 className="text-lg font-bold text-gray-900">Wohnungsübersicht</h1>
-            <p className="text-gray-600 text-sm">
-              Verwalten Sie Ihre Monteurwohnungen
-            </p>
+    <div className="space-y-6">
+      {/* Header mit Statistiken - Modernisiert */}
+      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl shadow-lg border border-blue-100 p-6">
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center space-x-4">
+            <div className="p-3 bg-blue-600 rounded-xl shadow-lg">
+              <Home className="h-6 w-6 text-white" />
+            </div>
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900">Wohnungsübersicht</h1>
+              <p className="text-gray-600 mt-1">Verwalten Sie Ihre Monteurwohnungen</p>
+            </div>
           </div>
-          <div className="mt-3 sm:mt-0 flex space-x-2">
+          
+          <div className="flex items-center space-x-3">
             <button
               onClick={handleAddApartment}
-              className="px-3 py-1.5 text-xs font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="flex items-center space-x-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-md hover:shadow-lg transition-all duration-200 font-medium"
             >
-              Wohnung hinzufügen
+              <Plus className="h-4 w-4" />
+              <span>Wohnung hinzufügen</span>
             </button>
             <button
               onClick={resetFilters}
-              className="px-3 py-1.5 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="flex items-center space-x-2 px-4 py-2 bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 rounded-xl shadow-md hover:shadow-lg transition-all duration-200 font-medium"
             >
-              Filter zurücksetzen
+              <RotateCcw className="h-4 w-4" />
+              <span>Filter zurücksetzen</span>
             </button>
           </div>
         </div>
 
-        {/* Statistiken-Karten */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          <div className="bg-blue-50 p-3 rounded-lg">
-            <div className="text-xl font-bold text-blue-600">{stats.total}</div>
-            <div className="text-xs text-blue-800">Gesamt</div>
+        {/* Statistiken-Karten - Modernisiert */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+            <div className="text-2xl font-bold text-blue-600">{stats.total}</div>
+            <div className="text-sm text-gray-600 font-medium">Gesamt</div>
           </div>
-          <div className="bg-green-50 p-3 rounded-lg">
-            <div className="text-xl font-bold text-green-600">{stats.frei}</div>
-            <div className="text-xs text-green-800">Frei</div>
+          <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+            <div className="text-2xl font-bold text-green-600">{stats.frei}</div>
+            <div className="text-sm text-gray-600 font-medium">Frei</div>
           </div>
-          <div className="bg-red-50 p-3 rounded-lg">
-            <div className="text-xl font-bold text-red-600">{stats.belegt}</div>
-            <div className="text-xs text-red-800">Belegt</div>
+          <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+            <div className="text-2xl font-bold text-blue-600">{stats.belegt}</div>
+            <div className="text-sm text-gray-600 font-medium">Belegt</div>
           </div>
-          <div className="bg-yellow-50 p-3 rounded-lg">
-            <div className="text-xl font-bold text-yellow-600">{stats.wartung}</div>
-            <div className="text-xs text-yellow-800">Wartung</div>
+          <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+            <div className="text-2xl font-bold text-amber-600">{stats.wartung}</div>
+            <div className="text-sm text-gray-600 font-medium">Wartung</div>
           </div>
         </div>
       </div>
@@ -244,39 +251,48 @@ const Dashboard = () => {
         onAvailabilityChange={setAvailabilityFilter}
       />
 
-      {/* Wohnungs-Grid */}
-      <div className="bg-white rounded-lg shadow p-6">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-gray-900">
-            Wohnungen ({apartments.length})
-          </h2>
-          <div className="flex items-center space-x-4">
-            <div className="text-sm text-gray-500">
-              Belegungsgrad: {stats.belegungsgrad}%
+      {/* Wohnungs-Grid - Modernisiert */}
+      <div className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
+        <div className="bg-gradient-to-r from-gray-50 to-blue-50 px-6 py-4 border-b border-gray-200">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <div className="p-2 bg-blue-600 rounded-lg">
+                <Home className="h-4 w-4 text-white" />
+              </div>
+              <h2 className="text-lg font-bold text-gray-900">
+                Wohnungen ({apartments.length})
+              </h2>
             </div>
-            <ViewModeToggle 
-              currentMode={viewMode} 
-              onModeChange={setViewMode} 
-            />
+            <div className="flex items-center space-x-4">
+              <div className="text-sm text-gray-600 font-medium bg-white rounded-lg px-3 py-1 shadow-sm border border-gray-200">
+                Belegungsgrad: {stats.belegungsgrad}%
+              </div>
+              <ViewModeToggle 
+                currentMode={viewMode} 
+                onModeChange={setViewMode} 
+              />
+            </div>
           </div>
         </div>
+        <div className="p-6">
 
-        {apartments.length === 0 ? (
-          <div className="text-center py-12">
-            <div className="text-gray-400 text-lg mb-2">🏠</div>
-            <p className="text-gray-600">{DEFAULT_VALUES.NO_RESULTS_MESSAGE}</p>
-            <button
-              onClick={resetFilters}
-              className="mt-4 px-4 py-2 text-sm font-medium text-blue-600 hover:text-blue-500"
-            >
-              Alle Filter zurücksetzen
-            </button>
-          </div>
-        ) : (
-          <div className={getGridClasses()}>
-            {apartments.map(renderApartmentCard)}
-          </div>
-        )}
+          {apartments.length === 0 ? (
+            <div className="text-center py-12">
+              <div className="text-gray-400 text-lg mb-2">🏠</div>
+              <p className="text-gray-600">{DEFAULT_VALUES.NO_RESULTS_MESSAGE}</p>
+              <button
+                onClick={resetFilters}
+                className="mt-4 px-4 py-2 text-sm font-medium text-blue-600 hover:text-blue-500"
+              >
+                Alle Filter zurücksetzen
+              </button>
+            </div>
+          ) : (
+            <div className={getGridClasses()}>
+              {apartments.map(renderApartmentCard)}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Apartment Detail Modal/Drawer */}

@@ -12,7 +12,7 @@ function App() {
   const tabs = [
     { id: 'dashboard', label: 'Dashboard', icon: Home },
     { id: 'kalender', label: 'Kalender', icon: Calendar },
-    { id: 'wohnungen', label: 'Wohnungen', icon: Building },
+    { id: 'wohnungen', label: 'History', icon: Building },
     { id: 'mieter', label: 'Mieter', icon: Users },
     { id: 'einstellungen', label: 'Einstellungen', icon: Settings },
     { id: 'papierkorb', label: 'Papierkorb', icon: Trash2 },

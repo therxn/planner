@@ -320,13 +320,13 @@ const TimelineCalendar = () => {
     }
   };
 
-  // Status-Farben
+  // Status-Farben - Modernisiert (Rot zu Blau geändert)
   const getStatusColor = (status) => {
     switch (status) {
       case 'occupied':
-        return 'bg-red-500';
+        return 'bg-blue-500';
       case 'maintenance':
-        return 'bg-yellow-500';
+        return 'bg-amber-500';
       case 'free':
       default:
         return 'bg-green-500';
@@ -353,50 +353,55 @@ const TimelineCalendar = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header mit Navigation */}
-      <div className="bg-white rounded-lg shadow p-6">
-        <div className="flex items-center justify-between mb-4">
+      {/* Header mit Navigation - Modernisiert */}
+      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl shadow-lg border border-blue-100 p-6">
+        <div className="flex items-center justify-between mb-6">
           <div className="flex items-center space-x-4">
-            <Calendar className="h-6 w-6 text-blue-600" />
-            <h1 className="text-2xl font-bold text-gray-900">Belegungskalender</h1>
+            <div className="p-3 bg-blue-600 rounded-xl shadow-lg">
+              <Calendar className="h-6 w-6 text-white" />
+            </div>
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900">Belegungskalender</h1>
+              <p className="text-gray-600 mt-1">Übersicht aller Wohnungsbelegungen</p>
+            </div>
           </div>
           
           <div className="flex items-center space-x-4">
-            {/* View Mode Toggle */}
-            <div className="flex bg-gray-100 rounded-lg p-1">
+            {/* View Mode Toggle - Modernisiert */}
+            <div className="flex bg-white rounded-xl p-1 shadow-md border border-gray-200">
               <button
                 onClick={() => setViewMode('month')}
-                className={`px-3 py-1 text-sm rounded-md transition-colors ${
+                className={`px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
                   viewMode === 'month' 
-                    ? 'bg-white text-blue-600 shadow-sm' 
-                    : 'text-gray-600 hover:text-gray-900'
+                    ? 'bg-blue-600 text-white shadow-md' 
+                    : 'text-gray-600 hover:text-blue-600 hover:bg-blue-50'
                 }`}
               >
                 Monat
               </button>
               <button
                 onClick={() => setViewMode('week')}
-                className={`px-3 py-1 text-sm rounded-md transition-colors ${
+                className={`px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
                   viewMode === 'week' 
-                    ? 'bg-white text-blue-600 shadow-sm' 
-                    : 'text-gray-600 hover:text-gray-900'
+                    ? 'bg-blue-600 text-white shadow-md' 
+                    : 'text-gray-600 hover:text-blue-600 hover:bg-blue-50'
                 }`}
               >
                 Woche
               </button>
             </div>
 
-            {/* Navigation */}
-            <div className="flex items-center space-x-2">
+            {/* Navigation - Modernisiert */}
+            <div className="flex items-center space-x-2 bg-white rounded-xl p-1 shadow-md border border-gray-200">
               <button
                 onClick={() => navigateTime(-1)}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                className="p-2 hover:bg-blue-50 rounded-lg transition-colors text-gray-600 hover:text-blue-600"
               >
                 <ChevronLeft className="h-5 w-5" />
               </button>
               
-              <div className="text-center min-w-[200px]">
-                <div className="text-lg font-semibold text-gray-900">
+              <div className="text-center min-w-[200px] px-4">
+                <div className="text-lg font-bold text-gray-900">
                   {viewMode === 'week' 
                     ? `Woche ${Math.ceil(timelineData.startDate.getDate() / 7)}`
                     : currentDate.toLocaleDateString('de-DE', { month: 'long', year: 'numeric' })
@@ -409,66 +414,74 @@ const TimelineCalendar = () => {
               
               <button
                 onClick={() => navigateTime(1)}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                className="p-2 hover:bg-blue-50 rounded-lg transition-colors text-gray-600 hover:text-blue-600"
               >
                 <ChevronRight className="h-5 w-5" />
               </button>
             </div>
           </div>
         </div>
-
-        {/* Statistiken entfernt */}
       </div>
 
-      {/* Timeline Tabelle */}
-      <div className="bg-white rounded-lg shadow">
+      {/* Timeline Tabelle - Modernisiert */}
+      <div className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
         <div className="overflow-x-auto" ref={scrollContainerRef}>
           <table className="w-full">
-            {/* Header mit Datum */}
-            <thead className="bg-gray-50">
+            {/* Header mit Datum - Modernisiert */}
+            <thead className="bg-gradient-to-r from-gray-50 to-blue-50">
               <tr>
-                <th className="px-4 py-3 text-left text-sm font-medium text-gray-900 min-w-[200px]">
-                  <Building className="h-4 w-4 inline mr-2" />
-                  Wohnung
+                <th className="px-6 py-4 text-left text-sm font-bold text-gray-900 min-w-[250px] border-r border-gray-200">
+                  <div className="flex items-center">
+                    <div className="p-2 bg-blue-600 rounded-lg mr-3">
+                      <Building className="h-4 w-4 text-white" />
+                    </div>
+                    <span>Wohnungen</span>
+                  </div>
                 </th>
-                <th className="px-0 py-3 text-center text-sm font-medium text-gray-900" colSpan={timelineData.days.length}>
-                  <div className="flex items-center justify-center space-x-4">
-                    <span className="text-gray-600">
+                <th className="px-0 py-4 text-center text-sm font-bold text-gray-900" colSpan={timelineData.days.length}>
+                  <div className="flex items-center justify-center space-x-6">
+                    <span className="text-gray-700 font-medium">
                       {timelineData.startDate.toLocaleDateString('de-DE')} - {timelineData.endDate.toLocaleDateString('de-DE')}
                     </span>
-                    <div className="flex items-center space-x-2">
-                      <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                      <span className="text-xs text-gray-600">Frei</span>
-                      <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-                      <span className="text-xs text-gray-600">Belegt</span>
-                      <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
-                      <span className="text-xs text-gray-600">Wartung</span>
+                    <div className="flex items-center space-x-4 bg-white rounded-lg px-4 py-2 shadow-sm border border-gray-200">
+                      <div className="flex items-center space-x-2">
+                        <div className="w-3 h-3 bg-green-500 rounded-full shadow-sm"></div>
+                        <span className="text-xs text-gray-600 font-medium">Frei</span>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <div className="w-3 h-3 bg-blue-500 rounded-full shadow-sm"></div>
+                        <span className="text-xs text-gray-600 font-medium">Belegt</span>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <div className="w-3 h-3 bg-amber-500 rounded-full shadow-sm"></div>
+                        <span className="text-xs text-gray-600 font-medium">Wartung</span>
+                      </div>
                     </div>
                   </div>
                 </th>
               </tr>
               
-              {/* Datum-Zeile */}
+              {/* Datum-Zeile - Modernisiert */}
               <tr>
-                <th className="px-4 py-2"></th>
-                <th className="px-0 py-2" colSpan={timelineData.days.length}>
-                  <div className="flex relative mx-2">
+                <th className="px-6 py-3 bg-gray-50 border-r border-gray-200"></th>
+                <th className="px-0 py-3" colSpan={timelineData.days.length}>
+                  <div className="flex relative mx-3">
                     {timelineData.days.map((day, dayIndex) => (
                       <div key={dayIndex} className="flex-1 text-center relative">
-                        <div className={`text-sm font-bold px-2 py-1 rounded shadow-sm ${
+                        <div className={`text-sm font-bold px-3 py-2 rounded-lg shadow-sm transition-all duration-200 ${
                           isToday(day) 
-                            ? 'text-blue-600 bg-blue-50 border-2 border-blue-300' 
-                            : 'text-gray-800 bg-white border border-gray-400'
+                            ? 'text-white bg-blue-600 border-2 border-blue-700 shadow-lg transform scale-105' 
+                            : 'text-gray-800 bg-white border border-gray-300 hover:shadow-md'
                         }`}>
                           {isToday(day) ? (
-                            <span>Heute</span>
+                            <span className="font-extrabold">Heute</span>
                           ) : (
                             <span>{day.getDate()}</span>
                           )}
                         </div>
                         {/* Vertikale Linie rechts (außer beim letzten Tag) */}
                         {dayIndex < timelineData.days.length - 1 && (
-                          <div className="absolute top-0 right-0 w-px h-full bg-gray-300"></div>
+                          <div className="absolute top-0 right-0 w-px h-full bg-gray-200"></div>
                         )}
                       </div>
                     ))}
@@ -476,25 +489,25 @@ const TimelineCalendar = () => {
                 </th>
               </tr>
               
-              {/* Wochentag-Zeile */}
+              {/* Wochentag-Zeile - Modernisiert */}
               <tr>
-                <th className="px-4 py-2"></th>
-                <th className="px-0 py-2" colSpan={timelineData.days.length}>
-                  <div className="flex relative mx-2">
+                <th className="px-6 py-3 bg-gray-50 border-r border-gray-200"></th>
+                <th className="px-0 py-3" colSpan={timelineData.days.length}>
+                  <div className="flex relative mx-3">
                     {timelineData.days.map((day, dayIndex) => (
                       <div key={dayIndex} className="flex-1 text-center relative">
-                        <div className={`text-sm font-bold px-2 py-1 rounded ${
+                        <div className={`text-xs font-semibold px-3 py-2 rounded-lg transition-all duration-200 ${
                           isToday(day) 
-                            ? 'text-blue-600 bg-blue-50 border border-blue-300' 
+                            ? 'text-blue-600 bg-blue-100 border border-blue-300' 
                             : day.getDay() === 0 || day.getDay() === 6
-                            ? 'text-red-600 bg-red-50 border border-red-300'
-                            : 'text-gray-700 bg-gray-50 border border-gray-300'
+                            ? 'text-blue-600 bg-blue-50 border border-blue-200'
+                            : 'text-gray-600 bg-gray-50 border border-gray-200'
                         }`}>
                           {day.toLocaleDateString('de-DE', { weekday: 'short' })}
                         </div>
                         {/* Vertikale Linie rechts (außer beim letzten Tag) */}
                         {dayIndex < timelineData.days.length - 1 && (
-                          <div className="absolute top-0 right-0 w-px h-full bg-gray-300"></div>
+                          <div className="absolute top-0 right-0 w-px h-full bg-gray-200"></div>
                         )}
                       </div>
                     ))}
@@ -503,54 +516,58 @@ const TimelineCalendar = () => {
               </tr>
             </thead>
 
-            {/* Wohnungen mit Status */}
-            <tbody className="divide-y divide-gray-200">
+            {/* Wohnungen mit Status - Modernisiert */}
+            <tbody className="divide-y divide-gray-100">
               {allApartments.map((apartment) => (
-                <tr key={apartment.id} className="hover:bg-gray-50 h-16">
-                  <td className="px-4 py-3">
+                <tr key={apartment.id} className="hover:bg-blue-50 transition-colors duration-200 h-20 group">
+                  <td className="px-6 py-4 border-r border-gray-200">
                     <div className="flex items-center">
                       <div className="flex-1">
-                        <div className="text-sm font-medium text-gray-900">
-                          {apartment.name}
+                        <div className="flex items-center space-x-3">
+                          <div className="text-base font-bold text-gray-900 group-hover:text-blue-700 transition-colors">
+                            {apartment.name}
+                          </div>
+                          <div className="flex items-center text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+                            <span className="font-medium">{apartment.beds} Bett{apartment.beds > 1 ? 'en' : ''}</span>
+                          </div>
+                          <div className="flex items-center text-xs text-gray-500 bg-green-100 px-2 py-1 rounded-full">
+                            <span className="font-medium">€{apartment.price}/Tag</span>
+                          </div>
                         </div>
-                        <div className="text-xs text-gray-500">
+                        <div className="text-sm text-gray-600 mt-1">
                           {apartment.address}
-                        </div>
-                        <div className="text-xs text-gray-400">
-                          {apartment.beds} Bett{apartment.beds > 1 ? 'en' : ''} • €{apartment.price}/Tag
                         </div>
                       </div>
                     </div>
                   </td>
                   
-                  {/* Timeline-Balken für alle Tage */}
-                  <td className="px-0 py-4 border-l border-gray-200" colSpan={timelineData.days.length}>
-                    <div className="relative h-8 mx-2">
-                      {/* Hintergrund-Grid */}
-                      <div className="absolute inset-0 flex rounded-lg overflow-hidden">
+                  {/* Timeline-Balken für alle Tage - Modernisiert */}
+                  <td className="px-0 py-4" colSpan={timelineData.days.length}>
+                    <div className="relative h-12 mx-3">
+                      {/* Hintergrund-Grid - Modernisiert */}
+                      <div className="absolute inset-0 flex rounded-xl overflow-hidden shadow-inner">
                         {timelineData.days.map((day, dayIndex) => (
                           <div
                             key={dayIndex}
                             className={`flex-1 relative ${
-                              isToday(day) ? 'bg-blue-50' : 'bg-gray-50'
+                              isToday(day) ? 'bg-blue-100' : 'bg-gray-50'
                             }`}
                           >
                             {/* Vertikale Linie rechts (außer beim letzten Tag) */}
                             {dayIndex < timelineData.days.length - 1 && (
-                              <div className="absolute top-0 right-0 w-px h-full bg-gray-300 z-10"></div>
+                              <div className="absolute top-0 right-0 w-px h-full bg-gray-200 z-10"></div>
                             )}
                           </div>
                         ))}
                       </div>
                       
-                      {/* Status-Balken */}
-                      <div className="absolute inset-0 flex rounded-lg overflow-hidden">
+                      {/* Status-Balken - Modernisiert */}
+                      <div className="absolute inset-0 flex rounded-xl overflow-hidden">
                         {timelineData.days.map((day, dayIndex) => {
                           const status = getApartmentStatus(apartment, day);
                           const isLastDay = dayIndex === timelineData.days.length - 1;
                           const nextDay = dayIndex < timelineData.days.length - 1 ? timelineData.days[dayIndex + 1] : null;
                           const nextStatus = nextDay ? getApartmentStatus(apartment, nextDay) : null;
-                          const isFirstDay = dayIndex === 0;
                           
                           return (
                             <div
@@ -559,11 +576,11 @@ const TimelineCalendar = () => {
                                 isLastDay ? '' : 'border-r border-gray-200'
                               }`}
                             >
-                              {/* Status-Balken */}
+                              {/* Status-Balken - Vereinfacht */}
                               <div
                                 className={`h-full ${getStatusColor(status)} ${
-                                  status === 'free' ? 'opacity-20' : 'opacity-90'
-                                } transition-all duration-300 hover:opacity-100 cursor-pointer group relative`}
+                                  status === 'free' ? 'opacity-40' : 'opacity-90'
+                                } transition-all duration-200 hover:opacity-100 cursor-pointer group relative rounded-md`}
                                 onMouseEnter={(e) => {
                                   const booking = getBookingForDate(apartment, day);
                                   const rect = e.currentTarget.getBoundingClientRect();
@@ -578,29 +595,29 @@ const TimelineCalendar = () => {
                                 }}
                                 onMouseLeave={() => setHoveredTooltip(null)}
                               >
-                                {/* Balken-Effekte */}
-                                <div className={`absolute inset-0 ${
-                                  status === 'free' ? 'bg-gradient-to-r from-transparent to-transparent' :
-                                  status === 'occupied' ? 'bg-gradient-to-r from-red-400 to-red-600' :
-                                  'bg-gradient-to-r from-yellow-400 to-yellow-600'
-                                } opacity-50`} />
+                                {/* Einfacher Balken-Effekt */}
+                                <div className={`absolute inset-0 rounded-md ${
+                                  status === 'free' ? 'bg-green-400' :
+                                  status === 'occupied' ? 'bg-blue-500' :
+                                  'bg-amber-500'
+                                } opacity-70`} />
                                 
                                 {/* Status-Text für belegte Tage */}
                                 {status !== 'free' && (
                                   <div className="absolute inset-0 flex items-center justify-center">
-                                    <span className="text-white text-xs font-bold opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-black bg-opacity-30 px-1 rounded">
+                                    <span className="text-white text-xs font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-black/30 px-1 rounded">
                                       {getStatusText(status).charAt(0)}
                                     </span>
                                   </div>
                                 )}
                                 
                                 {/* Hover-Effekt */}
-                                <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-10 transition-opacity duration-200" />
+                                <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-200 rounded-md" />
                               </div>
                               
-                              {/* Verbindungslinie zwischen gleichen Status */}
+                              {/* Verbindungslinie zwischen gleichen Status - Modernisiert */}
                               {!isLastDay && status === nextStatus && status !== 'free' && (
-                                <div className={`absolute top-1/2 -right-px w-px h-6 ${getStatusColor(status)} transform -translate-y-1/2 opacity-60`} />
+                                <div className={`absolute top-1/2 -right-px w-1 h-8 ${getStatusColor(status)} transform -translate-y-1/2 opacity-70 rounded-full shadow-sm`} />
                               )}
                             </div>
                           );
@@ -652,11 +669,11 @@ const TimelineCalendar = () => {
                             return (
                               <div
                                 key={booking.id}
-                                className="absolute top-0 h-8"
+                                className="absolute top-2 h-8"
                                 style={{ left: `${styleLeft}%`, width: `${styleWidth}%` }}
                               >
                                 <div
-                                  className="h-full bg-rose-500/40 hover:bg-rose-600/50 text-white text-xs font-semibold rounded flex items-center justify-between shadow cursor-pointer group"
+                                  className="h-full bg-blue-500 hover:bg-blue-600 text-blue-900 text-xs font-medium rounded-md flex items-center justify-center shadow-sm cursor-pointer group transition-all duration-150 hover:shadow-md relative"
                                   onMouseEnter={(e) => {
                                     const rect = e.currentTarget.getBoundingClientRect();
                                     setHoveredTooltip({
@@ -670,9 +687,9 @@ const TimelineCalendar = () => {
                                   }}
                                   onMouseLeave={() => setHoveredTooltip(null)}
                                 >
-                                  {/* Resize Handle links */}
+                                  {/* Resize Handle links - Erweitert beim Hover */}
                                   <div
-                                    className="w-2 h-full cursor-col-resize bg-rose-700/40 hover:bg-rose-800/50"
+                                    className="absolute left-0 w-1 h-full cursor-col-resize bg-blue-700/70 hover:bg-blue-800/80 rounded-l-md transition-all duration-200 group-hover:w-2 group-hover:bg-blue-800/90 group-hover:shadow-md z-10"
                                     onPointerDown={(e) => {
                                       e.stopPropagation();
                                       e.currentTarget.setPointerCapture(e.pointerId);
@@ -690,36 +707,49 @@ const TimelineCalendar = () => {
                                     onMouseLeave={(e) => e.stopPropagation()}
                                   />
 
-                                  {/* Drag Handle (nur hier startet Verschieben) */}
-                                  <div
-                                    className="w-3 h-full cursor-grab bg-rose-700/30 hover:bg-rose-800/40"
-                                    onPointerDown={(e) => {
-                                      e.stopPropagation();
-                                      e.currentTarget.setPointerCapture(e.pointerId);
-                                      setDragState({
-                                        type: 'move',
-                                        bookingId: booking.id,
-                                        originalStart: booking.startDate,
-                                        originalEnd: booking.endDate,
-                                        startClientX: e.clientX,
-                                        currentClientX: e.clientX,
-                                        lastEdgeSwitchAt: 0
-                                      });
-                                    }}
-                                    onMouseEnter={(e) => e.stopPropagation()}
-                                    onMouseLeave={(e) => e.stopPropagation()}
-                                  />
-
+                                  {/* Buchungsname mit Info-Button - Modernisiert */}
                                   <div 
-                                    className="px-2 truncate cursor-pointer hover:bg-white/10 rounded"
-                                    onClick={() => handleBookingClick(booking)}
+                                    className="px-3 py-1 truncate rounded-lg text-center font-medium bg-white/95 backdrop-blur-sm relative z-20 shadow-md border border-blue-200/50 flex items-center justify-between gap-2 hover:shadow-lg transition-all duration-200"
                                   >
-                                    {booking.title || booking.guestName || 'Buchung'}
+                                    {/* Buchungstext */}
+                                    <span className="truncate cursor-grab hover:cursor-grabbing text-blue-800 font-semibold flex-1" 
+                                          onPointerDown={(e) => {
+                                            e.stopPropagation();
+                                            e.currentTarget.setPointerCapture(e.pointerId);
+                                            
+                                            // Sofort Drag & Drop starten
+                                            setDragState({
+                                              type: 'move',
+                                              bookingId: booking.id,
+                                              originalStart: booking.startDate,
+                                              originalEnd: booking.endDate,
+                                              startClientX: e.clientX,
+                                              currentClientX: e.clientX,
+                                              lastEdgeSwitchAt: 0
+                                            });
+                                          }}
+                                    >
+                                      {booking.title || booking.guestName || 'Buchung'}
+                                    </span>
+                                    
+                                    {/* Info-Button - Modernisiert */}
+                                    <button
+                                      className="w-4 h-4 bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-sm hover:shadow-md transform hover:scale-105 transition-all duration-200 flex items-center justify-center text-xs font-bold flex-shrink-0 border border-blue-500/30"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleBookingClick(booking);
+                                      }}
+                                      title="Buchungsdetails anzeigen"
+                                    >
+                                      <svg className="w-2.5 h-2.5" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                                      </svg>
+                                    </button>
                                   </div>
 
-                                  {/* Resize Handle rechts */}
+                                  {/* Resize Handle rechts - Erweitert beim Hover */}
                                   <div
-                                    className="w-2 h-full cursor-col-resize bg-rose-700/40 hover:bg-rose-800/50"
+                                    className="absolute right-0 w-1 h-full cursor-col-resize bg-blue-700/70 hover:bg-blue-800/80 rounded-r-md transition-all duration-200 group-hover:w-2 group-hover:bg-blue-800/90 group-hover:shadow-md z-10"
                                     onPointerDown={(e) => {
                                       e.stopPropagation();
                                       e.currentTarget.setPointerCapture(e.pointerId);
