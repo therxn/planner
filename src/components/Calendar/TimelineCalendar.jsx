@@ -16,6 +16,7 @@ const TimelineCalendar = () => {
   const [dragState, setDragState] = useState(null); // { type: 'move'|'resize-start'|'resize-end', bookingId, originalStart, originalEnd, startClientX, lastEdgeSwitchAt }
   const [selectedApartment, setSelectedApartment] = useState(null); // Für ApartmentDetail
   const [isApartmentDetailOpen, setIsApartmentDetailOpen] = useState(false);
+  const [pendingChanges, setPendingChanges] = useState(null); // { booking, newStart, newEnd, type, x, y }
 
   // Generiere Zeitstrahl-Daten
   const timelineData = useMemo(() => {
@@ -185,16 +186,15 @@ const TimelineCalendar = () => {
             // Überschneidung – verwerfen
             // Optional: Feedback anzeigen
           } else {
-            try {
-              await updateBooking(booking.id, {
-                startDate: newStartISO,
-                endDate: newEndISO,
-                totalPrice: getUpdatedTotalPrice(booking, newStartISO, newEndISO)
-              });
-            } catch (err) {
-              // Fehler still behandeln oder anzeigen
-              // console.error(err);
-            }
+            // Zeige Bestätigungs-Popup an der aktuellen Mausposition
+            setPendingChanges({
+              booking,
+              newStart: newStartISO,
+              newEnd: newEndISO,
+              type: dragState.type,
+              x: e.clientX,
+              y: e.clientY
+            });
           }
         }
       }
@@ -318,6 +318,26 @@ const TimelineCalendar = () => {
     } catch (error) {
       console.error('Fehler beim Löschen der Buchung:', error);
     }
+  };
+
+  // Handler für Bestätigungs-Popup
+  const handleConfirmChanges = async () => {
+    if (!pendingChanges) return;
+    
+    try {
+      await updateBooking(pendingChanges.booking.id, {
+        startDate: pendingChanges.newStart,
+        endDate: pendingChanges.newEnd,
+        totalPrice: getUpdatedTotalPrice(pendingChanges.booking, pendingChanges.newStart, pendingChanges.newEnd)
+      });
+      setPendingChanges(null);
+    } catch (error) {
+      console.error('Fehler beim Aktualisieren der Buchung:', error);
+    }
+  };
+
+  const handleCancelChanges = () => {
+    setPendingChanges(null);
   };
 
   // Status-Farben - Modernisiert (Rot zu Blau geändert)
@@ -707,12 +727,12 @@ const TimelineCalendar = () => {
                                     onMouseLeave={(e) => e.stopPropagation()}
                                   />
 
-                                  {/* Buchungsname mit Info-Button - Modernisiert */}
+                                  {/* Buchungsname mit Info-Button - Dezentes Blau */}
                                   <div 
-                                    className="px-3 py-1 truncate rounded-lg text-center font-medium bg-white/95 backdrop-blur-sm relative z-20 shadow-md border border-blue-200/50 flex items-center justify-between gap-2 hover:shadow-lg transition-all duration-200"
+                                    className="px-3 py-1 truncate rounded-lg text-center font-medium bg-blue-50/80 backdrop-blur-sm relative z-20 shadow-sm border border-blue-100/60 flex items-center justify-between gap-2 hover:shadow-md transition-all duration-200"
                                   >
                                     {/* Buchungstext */}
-                                    <span className="truncate cursor-grab hover:cursor-grabbing text-blue-800 font-semibold flex-1" 
+                                    <span className="truncate cursor-grab hover:cursor-grabbing text-gray-700 font-medium flex-1" 
                                           onPointerDown={(e) => {
                                             e.stopPropagation();
                                             e.currentTarget.setPointerCapture(e.pointerId);
@@ -900,6 +920,70 @@ const TimelineCalendar = () => {
           onUpdateBooking={handleUpdateBooking}
           onDeleteBooking={handleDeleteBooking}
         />
+      )}
+
+      {/* Bestätigungs-Popup für Änderungen */}
+      {pendingChanges && (
+        <div
+          className="fixed z-50 bg-white rounded-lg shadow-xl border border-gray-200 p-4 max-w-sm"
+          style={{
+            left: `${pendingChanges.x}px`,
+            top: `${pendingChanges.y - 10}px`,
+            transform: 'translateX(-50%) translateY(-100%)'
+          }}
+        >
+          {/* Tooltip-Pfeil */}
+          <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-200"></div>
+          
+          <div className="space-y-3">
+            {/* Header */}
+            <div className="flex items-center">
+              <div className="p-1.5 bg-blue-100 rounded-full mr-2">
+                <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+              </div>
+              <h3 className="text-sm font-semibold text-gray-900">Änderungen bestätigen</h3>
+            </div>
+            
+            {/* Inhalt */}
+            <div>
+              <p className="text-xs text-gray-600 mb-2">
+                Buchung <strong>"{pendingChanges.booking.title || pendingChanges.booking.guestName}"</strong> verschieben?
+              </p>
+              <div className="bg-gray-50 p-2 rounded text-xs">
+                <div className="flex justify-between mb-1">
+                  <span className="text-gray-500">Von:</span>
+                  <span className="font-medium">
+                    {new Date(pendingChanges.booking.startDate).toLocaleDateString('de-DE')} - {new Date(pendingChanges.booking.endDate).toLocaleDateString('de-DE')}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-500">Nach:</span>
+                  <span className="font-medium text-blue-600">
+                    {new Date(pendingChanges.newStart).toLocaleDateString('de-DE')} - {new Date(pendingChanges.newEnd).toLocaleDateString('de-DE')}
+                  </span>
+                </div>
+              </div>
+            </div>
+            
+            {/* Buttons */}
+            <div className="flex justify-end space-x-2">
+              <button
+                onClick={handleCancelChanges}
+                className="px-3 py-1.5 text-xs font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded transition-colors"
+              >
+                Abbrechen
+              </button>
+              <button
+                onClick={handleConfirmChanges}
+                className="px-3 py-1.5 text-xs font-medium text-white bg-blue-600 hover:bg-blue-700 rounded transition-colors"
+              >
+                Übernehmen
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

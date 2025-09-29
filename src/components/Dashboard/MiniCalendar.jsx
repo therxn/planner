@@ -13,6 +13,7 @@ const MiniCalendar = ({ apartment, size = 'small', onDateRangeSelect = null, boo
   const [selectedStartDate, setSelectedStartDate] = useState(null);
   const [selectedEndDate, setSelectedEndDate] = useState(null);
   const [isSelectingRange, setIsSelectingRange] = useState(false);
+  const [allowPastBookings, setAllowPastBookings] = useState(false);
   
   // Bestimme Belegungsstatus für einen Tag basierend auf echten Buchungen
   const getDayStatus = (date) => {
@@ -150,10 +151,17 @@ const MiniCalendar = ({ apartment, size = 'small', onDateRangeSelect = null, boo
     }
 
     // Prüfe ob Datum in der Vergangenheit liegt
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    if (date < today) {
-      return; // Vergangene Tage können nicht ausgewählt werden
+    // Für kleine Kalender (Dashboard) sind vergangene Buchungen nie erlaubt
+    // Für mittlere/große Kalender (ApartmentDetail) hängt es vom Toggle ab
+    const isSmallCalendar = size === 'small';
+    const shouldBlockPast = isSmallCalendar || !allowPastBookings;
+    
+    if (shouldBlockPast) {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      if (date < today) {
+        return; // Vergangene Tage können nicht ausgewählt werden
+      }
     }
 
     if (!selectedStartDate) {
@@ -214,6 +222,7 @@ const MiniCalendar = ({ apartment, size = 'small', onDateRangeSelect = null, boo
           </button>
         </div>
 
+
         {/* Wochentage */}
         <div className="grid grid-cols-7 gap-1 mb-1">
           {['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'].map(day => (
@@ -231,7 +240,8 @@ const MiniCalendar = ({ apartment, size = 'small', onDateRangeSelect = null, boo
             const isInSelectedRange = isDateInSelectedRange(day.date);
             const isOccupied = isDateOccupied(day.date);
             const isPast = day.date < new Date().setHours(0, 0, 0, 0);
-            const isClickable = onDateRangeSelect && day.isCurrentMonth && !isOccupied && !isPast;
+            const isSmallCalendar = size === 'small';
+            const isClickable = onDateRangeSelect && day.isCurrentMonth && !isOccupied && (isSmallCalendar ? !isPast : (allowPastBookings || !isPast));
             
             return (
               <div
@@ -246,9 +256,10 @@ const MiniCalendar = ({ apartment, size = 'small', onDateRangeSelect = null, boo
                   ${isInSelectedRange && !isSelected && !isInRange ? 'bg-blue-100 border border-blue-200' : ''}
                   ${isClickable ? 'cursor-pointer hover:bg-opacity-80 hover:scale-105' : 'cursor-default'}
                   ${isOccupied ? 'opacity-60 cursor-not-allowed' : ''}
-                  ${isPast ? 'opacity-40 cursor-not-allowed' : ''}
+                  ${isPast && (isSmallCalendar || !allowPastBookings) ? 'opacity-40 cursor-not-allowed' : ''}
+                  ${isPast && !isSmallCalendar && allowPastBookings ? 'opacity-80 border-dashed border-yellow-300' : ''}
                 `}
-                title={`${day.date.toLocaleDateString('de-DE')}: ${getStatusText(day.status)}${isOccupied ? ' (nicht verfügbar)' : ''}${isPast ? ' (vergangen)' : ''}`}
+                title={`${day.date.toLocaleDateString('de-DE')}: ${getStatusText(day.status)}${isOccupied ? ' (nicht verfügbar)' : ''}${isPast && (isSmallCalendar || !allowPastBookings) ? ' (vergangen)' : ''}${isPast && !isSmallCalendar && allowPastBookings ? ' (rückwirkende Buchung möglich)' : ''}`}
                 onClick={() => isClickable && handleDateClick(day.date)}
               >
                 {day.date.getDate()}
@@ -262,7 +273,12 @@ const MiniCalendar = ({ apartment, size = 'small', onDateRangeSelect = null, boo
           <div className="mt-2 text-center">
             {!isSelectingRange ? (
               <div className="text-xs text-gray-500">
-                Klicken Sie auf ein freies Datum zum Buchen
+                {size === 'small' 
+                  ? 'Klicken Sie auf ein freies Datum zum Buchen'
+                  : allowPastBookings 
+                    ? 'Klicken Sie auf ein freies Datum zum Buchen (auch vergangene)' 
+                    : 'Klicken Sie auf ein freies Datum zum Buchen'
+                }
               </div>
             ) : (
               <div className="text-xs text-blue-600 font-medium">
@@ -284,7 +300,7 @@ const MiniCalendar = ({ apartment, size = 'small', onDateRangeSelect = null, boo
   if (size === 'medium') {
     return (
       <div className="bg-white rounded-lg border p-3">
-        {/* Header */}
+        {/* Header mit Toggle */}
         <div className="flex items-center justify-between mb-3">
           <button
             onClick={() => navigateMonth(-1)}
@@ -292,9 +308,27 @@ const MiniCalendar = ({ apartment, size = 'small', onDateRangeSelect = null, boo
           >
             <ChevronLeft className="h-4 w-4" />
           </button>
-          <h3 className="text-base font-semibold">
-            {monthNames[currentDate.getMonth()]} {currentDate.getFullYear()}
-          </h3>
+          <div className="flex items-center gap-3">
+            <h3 className="text-base font-semibold">
+              {monthNames[currentDate.getMonth()]} {currentDate.getFullYear()}
+            </h3>
+            {/* Toggle für vergangene Buchungen */}
+            {onDateRangeSelect && (
+              <button
+                onClick={() => setAllowPastBookings(!allowPastBookings)}
+                className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium transition-colors ${
+                  allowPastBookings 
+                    ? 'bg-yellow-100 text-yellow-800 border border-yellow-300' 
+                    : 'bg-gray-100 text-gray-600 border border-gray-300'
+                }`}
+              >
+                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                {allowPastBookings ? 'Vergangene erlaubt' : 'Nur Zukunft'}
+              </button>
+            )}
+          </div>
           <button
             onClick={() => navigateMonth(1)}
             className="p-1.5 hover:bg-gray-100 rounded-lg"
@@ -320,7 +354,8 @@ const MiniCalendar = ({ apartment, size = 'small', onDateRangeSelect = null, boo
             const isInSelectedRange = isDateInSelectedRange(day.date);
             const isOccupied = isDateOccupied(day.date);
             const isPast = day.date < new Date().setHours(0, 0, 0, 0);
-            const isClickable = onDateRangeSelect && day.isCurrentMonth && !isOccupied && !isPast;
+            const isSmallCalendar = size === 'small';
+            const isClickable = onDateRangeSelect && day.isCurrentMonth && !isOccupied && (isSmallCalendar ? !isPast : (allowPastBookings || !isPast));
             
             return (
               <div
@@ -335,9 +370,10 @@ const MiniCalendar = ({ apartment, size = 'small', onDateRangeSelect = null, boo
                   ${isInSelectedRange && !isSelected && !isInRange ? 'bg-blue-100 border border-blue-200' : ''}
                   ${isClickable ? 'cursor-pointer hover:bg-opacity-80 hover:scale-105' : 'cursor-default'}
                   ${isOccupied ? 'opacity-60 cursor-not-allowed' : ''}
-                  ${isPast ? 'opacity-40 cursor-not-allowed' : ''}
+                  ${isPast && (isSmallCalendar || !allowPastBookings) ? 'opacity-40 cursor-not-allowed' : ''}
+                  ${isPast && !isSmallCalendar && allowPastBookings ? 'opacity-80 border-dashed border-yellow-300' : ''}
                 `}
-                title={`${day.date.toLocaleDateString('de-DE')}: ${getStatusText(day.status)}${isOccupied ? ' (nicht verfügbar)' : ''}${isPast ? ' (vergangen)' : ''}`}
+                title={`${day.date.toLocaleDateString('de-DE')}: ${getStatusText(day.status)}${isOccupied ? ' (nicht verfügbar)' : ''}${isPast && (isSmallCalendar || !allowPastBookings) ? ' (vergangen)' : ''}${isPast && !isSmallCalendar && allowPastBookings ? ' (rückwirkende Buchung möglich)' : ''}`}
                 onClick={() => isClickable && handleDateClick(day.date)}
               >
                 {day.date.getDate()}
@@ -351,7 +387,12 @@ const MiniCalendar = ({ apartment, size = 'small', onDateRangeSelect = null, boo
           <div className="mt-3 text-center">
             {!isSelectingRange ? (
               <div className="text-xs text-gray-500">
-                Klicken Sie auf ein freies Datum zum Buchen
+                {size === 'small' 
+                  ? 'Klicken Sie auf ein freies Datum zum Buchen'
+                  : allowPastBookings 
+                    ? 'Klicken Sie auf ein freies Datum zum Buchen (auch vergangene)' 
+                    : 'Klicken Sie auf ein freies Datum zum Buchen'
+                }
               </div>
             ) : (
               <div className="text-xs text-blue-600 font-medium">
@@ -373,7 +414,7 @@ const MiniCalendar = ({ apartment, size = 'small', onDateRangeSelect = null, boo
   if (size === 'large') {
     return (
     <div className="bg-white rounded-lg border p-4">
-      {/* Header */}
+      {/* Header mit Toggle */}
       <div className="flex items-center justify-between mb-4">
         <button
           onClick={() => navigateMonth(-1)}
@@ -381,9 +422,27 @@ const MiniCalendar = ({ apartment, size = 'small', onDateRangeSelect = null, boo
         >
           <ChevronLeft className="h-4 w-4" />
         </button>
-        <h3 className="text-lg font-semibold">
-          {monthNames[currentDate.getMonth()]} {currentDate.getFullYear()}
-        </h3>
+        <div className="flex items-center gap-4">
+          <h3 className="text-lg font-semibold">
+            {monthNames[currentDate.getMonth()]} {currentDate.getFullYear()}
+          </h3>
+          {/* Toggle für vergangene Buchungen */}
+          {onDateRangeSelect && (
+            <button
+              onClick={() => setAllowPastBookings(!allowPastBookings)}
+              className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                allowPastBookings 
+                  ? 'bg-yellow-100 text-yellow-800 border border-yellow-300' 
+                  : 'bg-gray-100 text-gray-600 border border-gray-300'
+              }`}
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              {allowPastBookings ? 'Vergangene erlaubt' : 'Nur Zukunft'}
+            </button>
+          )}
+        </div>
         <button
           onClick={() => navigateMonth(1)}
           className="p-2 hover:bg-gray-100 rounded-lg"

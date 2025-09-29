@@ -186,6 +186,13 @@ const BookingForm = ({
     return 'completed';
   };
 
+  // Prüfe ob es sich um eine vergangene Buchung handelt
+  const isPastBooking = () => {
+    if (!formData.startDate || !formData.endDate) return false;
+    const today = new Date().toISOString().split('T')[0];
+    return formData.endDate < today;
+  };
+
   if (!isOpen || !apartment) return null;
 
   return (
@@ -296,6 +303,19 @@ const BookingForm = ({
                 <AlertTriangle className="h-4 w-4 text-red-500 mr-2" />
                 <p className="text-xs text-red-600">
                   Zeitraum überschneidet sich mit bestehender Buchung
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* Warnung für vergangene Buchungen */}
+          {isPastBooking() && (
+            <div className="bg-yellow-50 border border-yellow-200 rounded p-2">
+              <div className="flex items-center">
+                <AlertTriangle className="h-4 w-4 text-yellow-600 mr-2" />
+                <p className="text-xs text-yellow-800">
+                  <strong>Rückwirkende Buchung:</strong> Diese Buchung liegt in der Vergangenheit. 
+                  Sie wird als "Abgeschlossen" markiert.
                 </p>
               </div>
             </div>

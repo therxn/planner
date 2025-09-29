@@ -17,6 +17,21 @@ const BookingList = ({
   const [preSelectedDates, setPreSelectedDates] = useState(null);
   const { showTooltip, TooltipComponent } = useDeleteTooltip();
 
+  // Event Listener für Kalender-Klicks
+  useEffect(() => {
+    const handleOpenBookingForm = (event) => {
+      const { startDate, endDate } = event.detail;
+      setPreSelectedDates({ startDate, endDate });
+      setIsFormOpen(true);
+    };
+
+    window.addEventListener('openBookingForm', handleOpenBookingForm);
+    
+    return () => {
+      window.removeEventListener('openBookingForm', handleOpenBookingForm);
+    };
+  }, []);
+
   // Buchungen nach Datum sortieren
   const sortedBookings = [...bookings].sort((a, b) => 
     new Date(a.startDate) - new Date(b.startDate)
@@ -101,7 +116,7 @@ const BookingList = ({
   const BookingCardMini = ({ booking, label, highlight=false, onDelete, onEdit }) => {
     if (!booking) {
       return (
-        <div className="border rounded-lg p-3 bg-gray-50 text-xs text-gray-500">
+        <div className="border rounded-lg p-3 bg-gray-50 text-xs text-gray-500 text-center">
           {label}: Keine
         </div>
       );
@@ -124,61 +139,84 @@ const BookingList = ({
     }
 
     return (
-      <div className={`border rounded-lg p-3 text-xs relative ${
+      <div className={`border rounded-lg p-3 text-xs relative shadow-sm ${
         label === 'Aktuell' ? 'bg-blue-50 border-blue-200' : 
         label === 'Nächste' ? 'bg-green-50 border-green-200' : 
-        'bg-white'
+        'bg-white border-gray-200'
       }`}>
-        <div className="flex items-center mb-1">
-          <span className={`inline-flex items-center px-2 py-0.5 rounded-full font-medium ${customBadgeClasses}`}>
-            {customBadgeText}
-          </span>
-          {label !== 'Aktuell' && label !== 'Nächste' && <span className="ml-2 font-medium text-gray-900">{label}</span>}
-        </div>
-        {(label === 'Aktuell' || label === 'Nächste') && (
-          <div className="absolute top-1 right-1 flex space-x-1">
-            <button
-              title="Buchung bearbeiten"
-              className="p-1 rounded hover:bg-blue-100 hover:text-blue-600 text-gray-500 transition-colors duration-200"
-              onClick={(e) => {
-                e.stopPropagation();
-                if (onEdit) {
-                  onEdit(booking);
-                }
-              }}
-            >
-              <Edit className="h-3 w-3" />
-            </button>
-            <button
-              title="Buchung entfernen"
-              className="p-1 rounded hover:bg-red-100 hover:text-red-600 text-gray-500 transition-colors duration-200"
-              onClick={(e) => {
-                e.stopPropagation();
-                if (onDelete) {
-                  showTooltip(`Buchung "${booking.title}" löschen?`, () => onDelete());
-                }
-              }}
-            >
-              <Trash2 className="h-3 w-3" />
-            </button>
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center space-x-2">
+            <span className={`inline-flex items-center px-1.5 py-0.5 rounded-full font-medium text-xs ${customBadgeClasses}`}>
+              {customBadgeText}
+            </span>
+            <div className="text-gray-900 font-semibold text-base">{booking.title}</div>
           </div>
-        )}
-        <div className="text-gray-700 font-medium truncate">{booking.title}</div>
-        <div className="flex items-center text-gray-600 mt-1">
-          <Calendar className="h-3 w-3 mr-1" />
-          <span>{bookingUtils.formatDate(booking.startDate)} - {bookingUtils.formatDate(booking.endDate)}</span>
+          {(label === 'Aktuell' || label === 'Nächste') && (
+            <div className="flex space-x-1">
+              <button
+                title="Buchung bearbeiten"
+                className="p-1 rounded hover:bg-blue-100 hover:text-blue-600 text-gray-500 transition-colors duration-200"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (onEdit) {
+                    onEdit(booking);
+                  }
+                }}
+              >
+                <Edit className="h-3 w-3" />
+              </button>
+              <button
+                title="Buchung entfernen"
+                className="p-1 rounded hover:bg-red-100 hover:text-red-600 text-gray-500 transition-colors duration-200"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (onDelete) {
+                    showTooltip(`Buchung "${booking.title}" löschen?`, () => onDelete());
+                  }
+                }}
+              >
+                <Trash2 className="h-3 w-3" />
+              </button>
+            </div>
+          )}
         </div>
-        <div className="flex items-center text-gray-600 mt-1">
-          <Clock className="h-3 w-3 mr-1" />
-          <span>{duration} Tag{duration > 1 ? 'e' : ''}</span>
+        
+        <div className="space-y-1.5">
+          {booking.guestName && (
+            <div className="text-gray-600 text-sm">
+              <span className="font-medium">Gast:</span> {booking.guestName}
+            </div>
+          )}
+          {booking.company && (
+            <div className="text-gray-600 text-sm">{booking.company}</div>
+          )}
+          
+          {/* Erste Zeile: Datum, Dauer und Preis nebeneinander */}
+          <div className="flex items-center justify-between text-gray-600">
+            <div className="flex items-center">
+              <Calendar className="h-3 w-3 mr-1.5" />
+              <span className="text-sm">{bookingUtils.formatDate(booking.startDate)} - {bookingUtils.formatDate(booking.endDate)}</span>
+            </div>
+            <div className="flex items-center space-x-3">
+              <div className="flex items-center">
+                <Clock className="h-3 w-3 mr-1.5" />
+                <span className="text-sm">{duration} Tag{duration > 1 ? 'e' : ''}</span>
+              </div>
+              {booking.pricePerNight && (
+                <div className="text-sm font-medium text-gray-900">
+                  €{booking.pricePerNight}/Tag
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       </div>
     );
   };
 
   const SectionHeader = ({ title, count, disable, onPrev, onNext }) => (
-    <div className="flex items-center justify-between mb-1">
-      <span className="text-xs font-semibold text-gray-700">{title}{typeof count === 'string' && ` • ${count}`}</span>
+    <div className="flex items-center justify-between mb-2">
+      <span className="text-xs font-semibold text-gray-800">{title}{typeof count === 'string' && ` • ${count}`}</span>
       <div className="flex items-center">
         <button
           onClick={onPrev}
@@ -186,7 +224,7 @@ const BookingList = ({
           title="Vorherige"
           disabled={disable}
         >
-          <ChevronUp className="h-4 w-4" />
+          <ChevronUp className="h-3 w-3" />
         </button>
         <button
           onClick={onNext}
@@ -194,7 +232,7 @@ const BookingList = ({
           title="Nächste"
           disabled={disable}
         >
-          <ChevronDown className="h-4 w-4" />
+          <ChevronDown className="h-3 w-3" />
         </button>
       </div>
     </div>
@@ -204,9 +242,9 @@ const BookingList = ({
   const pastCountLabel = pastBookings.length > 0 ? `${pastIndex + 1}/${pastBookings.length}` : '0/0';
 
   return (
-    <div className="space-y-4 relative">
+    <div className="h-full flex flex-col">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between mb-3">
         <h3 className="text-base font-semibold text-gray-900 flex items-center">
           <Calendar className="h-4 w-4 mr-2" />
           Buchungsübersicht
@@ -221,7 +259,7 @@ const BookingList = ({
             setPreSelectedDates({ startDate: fmt(today), endDate: fmt(tomorrow) });
             setIsFormOpen(true);
           }}
-          className="flex items-center px-2 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors text-sm"
+          className="flex items-center px-2 py-1.5 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors text-xs font-medium"
         >
           <Plus className="h-3 w-3 mr-1" />
           Neue Buchung
@@ -229,7 +267,7 @@ const BookingList = ({
       </div>
 
       {/* Inhalt: Entweder Übersicht oder Formular */}
-      <div className="p-4">
+      <div className="flex-1 overflow-y-auto">
         {isFormOpen ? (
           <BookingForm
             apartment={apartment}
@@ -241,7 +279,7 @@ const BookingList = ({
             preSelectedDates={preSelectedDates}
           />
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-3">
             {/* 1) Aktuelle Buchung */}
             <div>
               <SectionHeader title="Aktuelle Buchung" disable={true} />
